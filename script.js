@@ -777,7 +777,7 @@ function toggleHmMore(){
 //  STEP 1 ▸ Paste your Google Apps Script URL below
 //  after you deploy it (see setup guide in comments)
 // ──────────────────────────────────────────────
-const GOOGLE_SHEET_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxU7cz_bgxQXQOgYIkE64_-mRPYm8quaYdBPA5S7BWUKcnJoH4OpQhvxdKEvDLYPoPC/exec';
 //
 // HOW TO GET THIS URL — full steps:
 //
