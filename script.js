@@ -432,7 +432,7 @@ function renderResults(tds, z){
           <div class="abn-title">Compare Filters & Prices</div>
           <div class="abn-sub">Stage-by-stage cost, lifespan & buy links</div>
         </span>
-        <span class="abn-arrow">→</span>
+        <span class="abn-arrow" id="filterArrow">→</span>
       </button>
       <button class="action-btn btn-red" onclick="togglePanel('healthPanel', ${z.id}, ${tds})">
         <span class="abn-icon">🫀</span>
@@ -440,7 +440,7 @@ function renderResults(tds, z){
           <div class="abn-title">Long-term Health Effects</div>
           <div class="abn-sub">What happens to your body over 5–20 years</div>
         </span>
-        <span class="abn-arrow">→</span>
+        <span class="abn-arrow" id="healthArrow">→</span>
       </button>
       <button class="action-btn btn-yellow" onclick="togglePanel('roPanel', ${z.id}, ${tds})">
         <span class="abn-icon">⚗️</span>
@@ -448,7 +448,7 @@ function renderResults(tds, z){
           <div class="abn-title">To RO or Not to RO?</div>
           <div class="abn-sub">Science of when RO helps vs harms</div>
         </span>
-        <span class="abn-arrow">→</span>
+        <span class="abn-arrow" id="roArrow">→</span>
       </button>
       <button class="action-btn btn-purple" onclick="togglePanel('hmFiltersPanel', ${z.id}, ${tds})">
         <span class="abn-icon">🧪</span>
@@ -456,13 +456,16 @@ function renderResults(tds, z){
           <div class="abn-title">Heavy Metal Filters</div>
           <div class="abn-sub">Filters for your TDS if heavy metals present</div>
         </span>
-        <span class="abn-arrow">→</span>
+        <span class="abn-arrow" id="hmFiltersArrow">→</span>
       </button>
     </div>
 
     <!-- FILTER COMPARISON PANEL -->
-    <div id="filterPanel" style="display:none;">
-      <div class="panel-title" style="display:none;">🔍 Filter Comparison — Stage by Stage</div>
+    <div class="expand-panel" id="filterPanel">
+      <div class="panel-header">
+        <div class="panel-title">🔍 Filter Comparison — Stage by Stage</div>
+        <button class="panel-close" onclick="togglePanel('filterPanel', ${z.id}, ${tds})">✕</button>
+      </div>
       <div class="panel-body">
         <div style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;">Exact stages needed for your TDS level · Price estimates · Annual replacement cost · Buy links</div>
         <div class="stage-compare-wrap">
@@ -542,8 +545,11 @@ function renderResults(tds, z){
     </div>
 
     <!-- HEALTH IMPACT PANEL -->
-    <div id="healthPanel" style="display:none;">
-      <div class="panel-title" style="display:none;">🫀 Long-term Health Effects at TDS ${tds} ppm</div>
+    <div class="expand-panel" id="healthPanel">
+      <div class="panel-header">
+        <div class="panel-title">🫀 Long-term Health Effects at TDS ${tds} ppm</div>
+        <button class="panel-close" onclick="togglePanel('healthPanel', ${z.id}, ${tds})">✕</button>
+      </div>
       <div class="panel-body">
         ${(()=>{
           const hd = healthData.find(h=>h.id===z.id)||healthData[3];
@@ -590,8 +596,11 @@ function renderResults(tds, z){
     </div>
 
     <!-- RO DECISION PANEL -->
-    <div id="roPanel" style="display:none;">
-      <div class="panel-title" style="display:none;">⚗️ To RO or Not to RO — The Full Science</div>
+    <div class="expand-panel" id="roPanel">
+      <div class="panel-header">
+        <div class="panel-title">⚗️ To RO or Not to RO — The Full Science</div>
+        <button class="panel-close" onclick="togglePanel('roPanel', ${z.id}, ${tds})">✕</button>
+      </div>
       <div class="panel-body">
         <div class="ro-split">
           <div class="ro-card" style="background:rgba(255,77,77,0.06);border-color:rgba(255,77,77,0.25);">
@@ -657,8 +666,11 @@ function renderResults(tds, z){
     </div>
 
     <!-- HEAVY METAL FILTERS PANEL -->
-    <div id="hmFiltersPanel" style="display:none;">
-      <div class="panel-title" style="display:none;">🧪 Heavy Metal Filter Guide — Your TDS Zone</div>
+    <div class="expand-panel" id="hmFiltersPanel">
+      <div class="panel-header">
+        <div class="panel-title" style="color:#c4b5fd;">🧪 Heavy Metal Filter Guide — Your TDS Zone</div>
+        <button class="panel-close" onclick="togglePanel('hmFiltersPanel', ${z.id}, ${tds})">✕</button>
+      </div>
       <div class="panel-body">
         ${(()=>{
           const hm = heavyMetalsData.find(h=>h.id===z.id)||heavyMetalsData[3];
@@ -730,7 +742,7 @@ function renderResults(tds, z){
           <button class="hm-btn" onclick="toggleHmMore()">
             <span>📋</span> <span id="hmMoreBtnText">Show All 7 Heavy Metals</span>
           </button>
-          <button class="hm-btn" onclick="togglePanel('hmFiltersPanel', ${z.id}, ${tds})">
+          <button class="hm-btn" onclick="togglePanel('hmFiltersPanel', ${z.id}, ${tds});document.getElementById('hmFiltersPanel').scrollIntoView({behavior:'smooth'})">
             <span>🛡️</span> See Heavy Metal Filters for TDS ${tds}
           </button>
         </div>
@@ -912,21 +924,13 @@ function closePanelModal() {
   document.body.style.overflow = '';
 }
 
-
-// Close on backdrop click + ESC key
+// Close on backdrop click
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('panelModalOverlay').addEventListener('click', function(e) {
     if (e.target === this) closePanelModal();
   });
-  const tncOverlay = document.getElementById('tncModalOverlay');
-  if (tncOverlay) {
-    tncOverlay.addEventListener('click', function(e) {
-      if (e.target === this) closeTnC();
-    });
-  }
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closePanelModal(); closeTnC(); }
-  });
+  // ESC key
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanelModal(); });
 });
 
 // Override togglePanel to open modal instead of inline expand
@@ -946,6 +950,15 @@ function closeTnC() {
   overlay.classList.remove('open');
   document.body.style.overflow = '';
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const tncOverlay = document.getElementById('tncModalOverlay');
+  if (tncOverlay) {
+    tncOverlay.addEventListener('click', function(e) {
+      if (e.target === this) closeTnC();
+    });
+  }
+});
 
 // Init
 syncTDS('slider');
