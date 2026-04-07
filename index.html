@@ -121,17 +121,17 @@
         </div>
       </div>
 
-      <div class="results-section">
-        <div class="res-inner" id="results"></div>
-      </div>
-
       <div class="submit-row">
         <button class="submit-btn" id="submitBtn" onclick="submitData()">
           <span>📡</span> Share My Water Data
         </button>
-        <span class="submit-note">Saves your TDS + pincode anonymously to help build India's free water quality map</span>
+        <span class="submit-note">By submitting, you agree to our <button onclick="openTnC()" class="tnc-inline-link">Terms &amp; Conditions</button>. Only TDS + pincode are collected — stored anonymously.</span>
         <div class="submit-success" id="submitSuccess"></div>
         <div id="submitError" style="display:none;width:100%;margin-top:8px;padding:0.6rem 1rem;background:rgba(255,77,77,0.1);border:1px solid rgba(255,77,77,0.3);border-radius:10px;font-size:0.84rem;color:#ff7f7f;"></div>
+      </div>
+
+      <div class="results-section">
+        <div class="res-inner" id="results"></div>
       </div>
     </div>
   </div>
@@ -268,6 +268,7 @@
     <a href="#guide">TDS Guide</a>
     <a href="#how">How it Works</a>
     <a href="#why">Why it Matters</a>
+    <button onclick="openTnC()" class="tnc-footer-btn">📄 T&amp;C &amp; Privacy</button>
   </div>
   <hr class="footer-divider">
   <p class="footer-bottom">© 2025 AquaCheck · Data sources: WHO Guidelines for Drinking Water Quality · Bureau of Indian Standards IS 10500 · US EPA Secondary Drinking Water Regulations · All filter recommendations are for informational purposes only. Get your water professionally tested for specific contaminants like arsenic and fluoride.</p>
@@ -281,6 +282,47 @@
       <button class="panel-modal-close" onclick="closePanelModal()">✕</button>
     </div>
     <div class="panel-body" id="panelModalBody"></div>
+  </div>
+</div>
+
+<!-- T&C MODAL -->
+<div class="panel-modal-overlay" id="tncModalOverlay">
+  <div class="panel-modal tnc-modal">
+    <div class="panel-header tnc-header">
+      <div class="panel-title tnc-title">Terms &amp; Conditions · Privacy Policy</div>
+      <button class="panel-modal-close" onclick="closeTnC()">✕</button>
+    </div>
+    <div class="tnc-body">
+
+      <p class="tnc-meta">Last updated: April 2026</p>
+
+      <div class="tnc-block">
+        <span class="tnc-h">What we collect</span><br>
+        When you click <em>Share My Water Data</em>, we collect your TDS reading, pincode, and a timestamp. Your city and state are auto-detected from your pincode. We do not collect your name, email, phone, or IP address.
+      </div>
+
+      <div class="tnc-block">
+        <span class="tnc-h">How we use it</span><br>
+        Your data is stored anonymously and may be used to build India's water quality map, improve recommendations on this platform, and shared or sold as aggregated insights to water companies, researchers, or government bodies. We never sell individual records — only grouped statistics where no single submission is identifiable.
+      </div>
+
+      <div class="tnc-block">
+        <span class="tnc-h">Storage</span><br>
+        Data is stored in Google Sheets on your behalf. Since no personal information is collected, individual entries cannot be deleted or retrieved.
+      </div>
+
+      <div class="tnc-block">
+        <span class="tnc-h">Disclaimer</span><br>
+        All filter recommendations are for informational purposes only, based on WHO, BIS, and EPA standards. They are not a substitute for professional water testing. Get a certified lab test for specific contaminants like arsenic or fluoride.
+      </div>
+
+      <div class="tnc-block">
+        <span class="tnc-h">Contact</span><br>
+        Questions? Email us at <a href="mailto:wateraquacheck@gmail.com" class="tnc-mail">wateraquacheck@gmail.com</a>
+      </div>
+
+      <p class="tnc-footer-note">By submitting data you agree to the above. Using the site without submitting requires no consent.</p>
+    </div>
   </div>
 </div>
 
