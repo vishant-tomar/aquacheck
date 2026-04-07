@@ -432,7 +432,7 @@ function renderResults(tds, z){
           <div class="abn-title">Compare Filters & Prices</div>
           <div class="abn-sub">Stage-by-stage cost, lifespan & buy links</div>
         </span>
-        <span class="abn-arrow" id="filterArrow">→</span>
+        <span class="abn-arrow">→</span>
       </button>
       <button class="action-btn btn-red" onclick="togglePanel('healthPanel', ${z.id}, ${tds})">
         <span class="abn-icon">🫀</span>
@@ -440,7 +440,7 @@ function renderResults(tds, z){
           <div class="abn-title">Long-term Health Effects</div>
           <div class="abn-sub">What happens to your body over 5–20 years</div>
         </span>
-        <span class="abn-arrow" id="healthArrow">→</span>
+        <span class="abn-arrow">→</span>
       </button>
       <button class="action-btn btn-yellow" onclick="togglePanel('roPanel', ${z.id}, ${tds})">
         <span class="abn-icon">⚗️</span>
@@ -448,7 +448,7 @@ function renderResults(tds, z){
           <div class="abn-title">To RO or Not to RO?</div>
           <div class="abn-sub">Science of when RO helps vs harms</div>
         </span>
-        <span class="abn-arrow" id="roArrow">→</span>
+        <span class="abn-arrow">→</span>
       </button>
       <button class="action-btn btn-purple" onclick="togglePanel('hmFiltersPanel', ${z.id}, ${tds})">
         <span class="abn-icon">🧪</span>
@@ -456,16 +456,13 @@ function renderResults(tds, z){
           <div class="abn-title">Heavy Metal Filters</div>
           <div class="abn-sub">Filters for your TDS if heavy metals present</div>
         </span>
-        <span class="abn-arrow" id="hmFiltersArrow">→</span>
+        <span class="abn-arrow">→</span>
       </button>
     </div>
 
     <!-- FILTER COMPARISON PANEL -->
-    <div class="expand-panel" id="filterPanel">
-      <div class="panel-header">
-        <div class="panel-title">🔍 Filter Comparison — Stage by Stage</div>
-        <button class="panel-close" onclick="togglePanel('filterPanel', ${z.id}, ${tds})">✕</button>
-      </div>
+    <div id="filterPanel" style="display:none;">
+      <div class="panel-title" style="display:none;">🔍 Filter Comparison — Stage by Stage</div>
       <div class="panel-body">
         <div style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;">Exact stages needed for your TDS level · Price estimates · Annual replacement cost · Buy links</div>
         <div class="stage-compare-wrap">
@@ -545,11 +542,8 @@ function renderResults(tds, z){
     </div>
 
     <!-- HEALTH IMPACT PANEL -->
-    <div class="expand-panel" id="healthPanel">
-      <div class="panel-header">
-        <div class="panel-title">🫀 Long-term Health Effects at TDS ${tds} ppm</div>
-        <button class="panel-close" onclick="togglePanel('healthPanel', ${z.id}, ${tds})">✕</button>
-      </div>
+    <div id="healthPanel" style="display:none;">
+      <div class="panel-title" style="display:none;">🫀 Long-term Health Effects at TDS ${tds} ppm</div>
       <div class="panel-body">
         ${(()=>{
           const hd = healthData.find(h=>h.id===z.id)||healthData[3];
@@ -596,11 +590,8 @@ function renderResults(tds, z){
     </div>
 
     <!-- RO DECISION PANEL -->
-    <div class="expand-panel" id="roPanel">
-      <div class="panel-header">
-        <div class="panel-title">⚗️ To RO or Not to RO — The Full Science</div>
-        <button class="panel-close" onclick="togglePanel('roPanel', ${z.id}, ${tds})">✕</button>
-      </div>
+    <div id="roPanel" style="display:none;">
+      <div class="panel-title" style="display:none;">⚗️ To RO or Not to RO — The Full Science</div>
       <div class="panel-body">
         <div class="ro-split">
           <div class="ro-card" style="background:rgba(255,77,77,0.06);border-color:rgba(255,77,77,0.25);">
@@ -666,11 +657,8 @@ function renderResults(tds, z){
     </div>
 
     <!-- HEAVY METAL FILTERS PANEL -->
-    <div class="expand-panel" id="hmFiltersPanel">
-      <div class="panel-header">
-        <div class="panel-title" style="color:#c4b5fd;">🧪 Heavy Metal Filter Guide — Your TDS Zone</div>
-        <button class="panel-close" onclick="togglePanel('hmFiltersPanel', ${z.id}, ${tds})">✕</button>
-      </div>
+    <div id="hmFiltersPanel" style="display:none;">
+      <div class="panel-title" style="display:none;">🧪 Heavy Metal Filter Guide — Your TDS Zone</div>
       <div class="panel-body">
         ${(()=>{
           const hm = heavyMetalsData.find(h=>h.id===z.id)||heavyMetalsData[3];
@@ -742,7 +730,7 @@ function renderResults(tds, z){
           <button class="hm-btn" onclick="toggleHmMore()">
             <span>📋</span> <span id="hmMoreBtnText">Show All 7 Heavy Metals</span>
           </button>
-          <button class="hm-btn" onclick="togglePanel('hmFiltersPanel', ${z.id}, ${tds});document.getElementById('hmFiltersPanel').scrollIntoView({behavior:'smooth'})">
+          <button class="hm-btn" onclick="togglePanel('hmFiltersPanel', ${z.id}, ${tds})">
             <span>🛡️</span> See Heavy Metal Filters for TDS ${tds}
           </button>
         </div>
@@ -827,14 +815,33 @@ async function submitData(){
   const success = document.getElementById('submitSuccess');
   const errBox  = document.getElementById('submitError');
 
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Looking up location…';
+  if(errBox) errBox.style.display = 'none';
+
+  // ── STEP 1: Fetch city & state from pincode ──
+  let city  = '';
+  let state = '';
+  try {
+    const res  = await fetch(`https://api.postalpincode.in/pincode/${pin}`);
+    const data = await res.json();
+    if(data[0].Status === 'Success' && data[0].PostOffice.length > 0){
+      const po = data[0].PostOffice[0];
+      city  = po.District || po.Name || '';
+      state = po.State    || '';
+    }
+  } catch(e) {
+    // Silently fail — city/state just stay empty if API is down
+  }
+
   // Build the data object
   const entry = {
     timestamp : new Date().toISOString(),
     pincode   : pin,
     tds       : tds,
     zone      : getZone(tds).label,
-    city      : '',   // auto-filled by pincode lookup if you add that later
-    state     : ''
+    city      : city,
+    state     : state
   };
 
   // Always save locally as backup
@@ -846,30 +853,26 @@ async function submitData(){
 
   // If no URL set yet — just show success from localStorage save
   if(!GOOGLE_SHEET_URL || GOOGLE_SHEET_URL === 'YOUR_APPS_SCRIPT_URL_HERE'){
-    btn.disabled = true;
     if(errBox) errBox.style.display = 'none';
     success.classList.add('show');
     success.innerHTML = '✅ Saved locally — add your Google Sheet URL to sync online';
-    setTimeout(()=>{ btn.disabled=false; success.classList.remove('show'); }, 5000);
+    setTimeout(()=>{ btn.disabled=false; btn.innerHTML='📡 Share My Water Data'; success.classList.remove('show'); }, 5000);
     return;
   }
 
-  // Send to Google Sheets
-  btn.disabled = true;
+  // ── STEP 2: Send to Google Sheets ──
   btn.innerHTML = '⏳ Sending…';
-  if(errBox) errBox.style.display = 'none';
 
   try {
     await fetch(GOOGLE_SHEET_URL, {
       method  : 'POST',
-      mode    : 'no-cors',     // Google Apps Script requires no-cors
+      mode    : 'no-cors',
       headers : { 'Content-Type': 'application/json' },
       body    : JSON.stringify(entry)
     });
 
-    // no-cors means we can't read the response, but if no error was thrown it worked
     success.classList.add('show');
-    success.innerHTML = '✅ Data saved to Google Sheets!';
+    success.innerHTML = `✅ Saved! ${city ? city + ', ' + state : 'Location added'} · TDS ${tds} ppm`;
     setTimeout(()=>{ btn.disabled=false; btn.innerHTML='📡 Share My Water Data'; success.classList.remove('show'); }, 5000);
 
   } catch(err) {
@@ -909,18 +912,39 @@ function closePanelModal() {
   document.body.style.overflow = '';
 }
 
-// Close on backdrop click
+
+// Close on backdrop click + ESC key
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('panelModalOverlay').addEventListener('click', function(e) {
     if (e.target === this) closePanelModal();
   });
-  // ESC key
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closePanelModal(); });
+  const tncOverlay = document.getElementById('tncModalOverlay');
+  if (tncOverlay) {
+    tncOverlay.addEventListener('click', function(e) {
+      if (e.target === this) closeTnC();
+    });
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closePanelModal(); closeTnC(); }
+  });
 });
 
 // Override togglePanel to open modal instead of inline expand
 function togglePanel(id, zoneId, tds) {
   openPanelModal(id);
+}
+
+// ── T&C MODAL ──
+function openTnC() {
+  const overlay = document.getElementById('tncModalOverlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTnC() {
+  const overlay = document.getElementById('tncModalOverlay');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
 }
 
 // Init
