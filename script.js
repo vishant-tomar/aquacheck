@@ -777,7 +777,7 @@ function toggleHmMore(){
 //  STEP 1 ▸ Paste your Google Apps Script URL below
 //  after you deploy it (see setup guide in comments)
 // ──────────────────────────────────────────────
-const GOOGLE_SHEET_URL = 'https://aquacheck-bzz4.onrender.com';
+const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1WEnr8oMNDH2yG0dOqArzNasPGvY8lXTeLIX-BzbOMiY/edit?usp=sharing';
 //
 // HOW TO GET THIS URL — full steps:
 //
